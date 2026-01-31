@@ -1,2 +1,103 @@
 # DeepChem-Mastery-Course
 DeepChem 기반 분자 딥러닝 실습 Tutorials 기록
+
+# 🧪 DeepChem 기반 분자 딥러닝 실습 Tutorials 기록
+
+
+---
+
+## 📊 학습 로드맵 및 진행 상황 (Roadmap)
+
+
+## 1. Introduction To DeepChem (기초 과정)
+- [x] 1.1 The Basic Tools of the Deep Life Sciences
+- [x] 1.2 Working With Datasets
+- [x] 1.3 An Introduction To MoleculeNet
+- [ ] 1.4 Molecular Fingerprints
+- [ ] 1.5 Creating Models with TensorFlow and PyTorch
+- [ ] 1.6 Introduction to Graph Convolutions
+- [ ] 1.7 Going Deeper on Molecular Featurizations
+- [ ] 1.8 Working With Splitters
+- [ ] 1.9 Advanced Model Training
+- [ ] 1.10 Creating a high fidelity model from experimental data
+- [ ] 1.11 Putting Multitask Learning to Work
+- [ ] 1.12 Modeling Protein Ligand Interactions
+- [ ] 1.13 Modeling Protein Ligand Interactions With Atomic Convolutions
+- [ ] 1.14 Conditional Generative Adversarial Networks
+- [ ] 1.15 Training a Generative Adversarial Network on MNIST
+- [ ] 1.16 Advanced model training using hyperopt
+- [ ] 1.17 Introduction to Gaussian Processes
+- [ ] 1.18 PytorchLightning Integration
+- [ ] 1.19 Compiling DeepChem Torch Models
+
+## 2. Molecular Machine Learning (분자 기계학습 심화)
+- [ ] 2.1 Molecular Fingerprints
+- [ ] 2.2 Going Deeper on Molecular Featurizations
+- [ ] 2.3 Learning Unsupervised Embeddings for Molecules
+- [ ] 2.4 Synthetic Feasibility Scoring
+- [ ] 2.5 Atomic Contributions for Molecules
+- [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets
+- [ ] 2.7 Transfer Learning With ChemBERTa Transformers
+- [ ] 2.8 Training a Normalizing Flow on QM9
+- [ ] 2.9 Large Scale Chemical Screens
+- [ ] 2.10 Introduction to Molecular Attention Transformer
+- [ ] 2.11 Generating molecules with MolGAN
+- [ ] 2.12 Introduction to GROVER
+- [ ] 2.13 Introduction to PROTACs
+- [ ] 2.14 Druggablity Assessment with Fpocket and Machine Learning
+
+## 3. Modeling Proteins (단백질 모델링)
+- [ ] 3.1 Protein Deep Learning
+- [ ] 3.2 DeepChem AntibodyTutorial Simplified
+- [ ] 3.3 Protein Structure Prediction with ESMFold
+- [ ] 3.4 Introduction to ProtBERT
+- [ ] 3.5 ProteinLM Tutorial0
+
+## 4. Protein Ligand Modeling (단백질-리간드 모델링)
+- [ ] 4.1 Introduction to Binding Sites
+- [ ] 4.2 Modeling Protein Ligand Interactions
+- [ ] 4.3 Modeling Protein Ligand Interactions With Atomic Convolutions
+- [ ] 4.4 DeepChem X Alphafold
+- [ ] 4.5 UniProt Data Preprocessing for Binding Sites
+
+## 5. Quantum Chemistry (양자 화학)
+- [ ] 5.1 Exploring Quantum Chemistry with GDB1k
+- [ ] 5.2 DeepQMC tutorial
+- [ ] 5.3 Training an Exchange Correlation Functional using Deepchem
+
+## 6. Bioinformatics (생물 정보학)
+- [ ] 6.1 Introduction to Bioinformatics
+- [ ] 6.2 Multisequence Alignments
+- [ ] 6.3 Scanpy
+- [ ] 6.4 Deep probabilistic analysis of single-cell omics data
+- [ ] 6.5 Cell Counting Tutorial
+
+## 7. Material Science (재료 과학)
+- [ ] 7.1 Introduction To Material Science
+
+## 8. Machine Learning Methods (ML 방법론)
+- [ ] 8.1 Using Reinforcement Learning to Play Pong
+- [ ] 8.2 Introduction to Model Interpretability
+- [ ] 8.3 Uncertainty In Deep Learning
+
+## 9. Deep Differential Equations (심층 미분 방정식 - PINNs)
+- [ ] 9.1 Physics Informed Neural Networks
+- [ ] 9.2 Introducing JaxModel and PINNModel
+- [ ] 9.3 About nODE Using Torchdiffeq in Deepchem
+- [ ] 9.4 Differentiation Infrastructure in Deepchem
+- [ ] 9.5 Ordinary Differential Equation Solving using deepchem
+
+## 10. Equivariance (등변성)
+- [ ] 10.1 Introduction to Equivariance
+
+## 11. Olfaction (후각 모델링)
+- [ ] 11.1 Predict Multi Label Odor Descriptors using OpenPOM
+
+## 12. Polymer Science (고분자 과학)
+- [ ] 12.1 An Introduction to the Polymers and Their Representation
+- [ ] 12.2 Crystallization tendency regression
+- [ ] 12.3 Introduction to Polymer SMILES
+- [ ] 12.4 Understanding Weighted Directed Graphs for Polymer Implementations
+- [ ] 12.5 PolyBERT: Chemical Language Models for Fingerprint Generation
+---
+© 2026 sjchoi231. All rights reserved.
