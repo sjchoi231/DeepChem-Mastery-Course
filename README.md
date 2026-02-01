@@ -10,8 +10,8 @@
 - [x] 1.1 The Basic Tools of the Deep Life Sciences
 - [x] 1.2 Working With Datasets
 - [x] 1.3 An Introduction To MoleculeNet
-- [ ] 1.4 Molecular Fingerprints
-- [ ] 1.5 Creating Models with TensorFlow and PyTorch
+- [x] 1.4 Molecular Fingerprints
+- [x] 1.5 Creating Models with TensorFlow and PyTorch
 - [ ] 1.6 Introduction to Graph Convolutions
 - [ ] 1.7 Going Deeper on Molecular Featurizations
 - [ ] 1.8 Working With Splitters
