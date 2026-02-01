@@ -12,20 +12,20 @@
 - [x] 1.3 An Introduction To MoleculeNet
 - [x] 1.4 Molecular Fingerprints
 - [x] 1.5 Creating Models with TensorFlow and PyTorch
-- [ ] 1.6 Introduction to Graph Convolutions
+- [x] 1.6 Introduction to Graph Convolutions
 - [ ] 1.7 Going Deeper on Molecular Featurizations
 - [ ] 1.8 Working With Splitters
 - [ ] 1.9 Advanced Model Training
 - [ ] 1.10 Creating a high fidelity model from experimental data
 - [ ] 1.11 Putting Multitask Learning to Work
-- [ ] 1.12 Modeling Protein Ligand Interactions
-- [ ] 1.13 Modeling Protein Ligand Interactions With Atomic Convolutions
-- [ ] 1.14 Conditional Generative Adversarial Networks
-- [ ] 1.15 Training a Generative Adversarial Network on MNIST
+- [ ] 1.12 Modeling Protein Ligand Interactions                          - 생물/제약 필요시
+- [ ] 1.13 Modeling Protein Ligand Interactions With Atomic Convolutions - 생물/제약 필요시
+- [ ] 1.14 Conditional Generative Adversarial Networks                   - diffusion 먼저
+- [ ] 1.15 Training a Generative Adversarial Network on MNIST            - 범용예제
 - [ ] 1.16 Advanced model training using hyperopt
-- [ ] 1.17 Introduction to Gaussian Processes
-- [ ] 1.18 PytorchLightning Integration
-- [ ] 1.19 Compiling DeepChem Torch Models
+- [ ] 1.17 Introduction to Gaussian Processes                            - 고전 추후 필요시
+- [ ] 1.18 PytorchLightning Integration                                  - 엔지니어링/최적화 필요시
+- [ ] 1.19 Compiling DeepChem Torch Models                               - 엔지니어링/최적화 필요시
 
 ## 2. Molecular Machine Learning
 - [ ] 2.1 Molecular Fingerprints
