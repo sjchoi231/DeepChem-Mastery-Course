@@ -13,8 +13,8 @@
 - [x] 1.4 Molecular Fingerprints
 - [x] 1.5 Creating Models with TensorFlow and PyTorch
 - [x] 1.6 Introduction to Graph Convolutions
-- [ ] 1.7 Going Deeper on Molecular Featurizations
-- [ ] 1.8 Working With Splitters
+- [x] 1.7 Going Deeper on Molecular Featurizations
+- [x] 1.8 Working With Splitters
 - [ ] 1.9 Advanced Model Training
 - [ ] 1.10 Creating a high fidelity model from experimental data
 - [ ] 1.11 Putting Multitask Learning to Work
