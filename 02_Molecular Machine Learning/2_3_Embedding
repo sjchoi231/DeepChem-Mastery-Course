@@ -1,0 +1,242 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyNO/vakX3w4sBQ53In63PVr"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **2.3 Learning Unsupervised Embeddings for Molecules**"
+      ],
+      "metadata": {
+        "id": "2BIIpqG2rtM5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install -qq --pre deepchem\n",
+        "import deepchem\n",
+        "import warnings\n",
+        "warnings.filterwarnings('ignore')\n",
+        "deepchem.__version__"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "id": "6fbvIlzVrxFL",
+        "outputId": "3e34af3e-7ef9-4f4c-cc8b-24a922736b5c"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'2.8.1.dev'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import deepchem as dc\n",
+        "tasks, datasets, transformers = dc.molnet.load_muv(split='stratified')\n",
+        "train_dataset, valid_dataset, test_dataset = datasets\n",
+        "train_smiles = train_dataset.ids\n",
+        "valid_smiles = valid_dataset.ids"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "ETZLBb7RtRmG"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tokens = set()\n",
+        "for s in train_smiles:\n",
+        "  tokens = tokens.union(set(c for c in s))\n",
+        "tokens = sorted(list(tokens))"
+      ],
+      "metadata": {
+        "id": "NciPXanlut2m"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from deepchem.models.optimizers import Adam, ExponentialDecay\n",
+        "max_length = max(len(s) for s in train_smiles)\n",
+        "batch_size = 100\n",
+        "batches_per_epoch = len(train_smiles)/batch_size\n",
+        "model = dc.models.SeqToSeq(tokens,\n",
+        "                           tokens,\n",
+        "                           max_length,\n",
+        "                           encoder_layers=2,\n",
+        "                           decoder_layers=2,\n",
+        "                           embedding_dimension=256,\n",
+        "                           model_dir='fingerprint',\n",
+        "                           batch_size=batch_size,\n",
+        "                           learning_rate=ExponentialDecay(0.001, 0.9, batches_per_epoch))"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "T-YwH-HMu4W8"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "SeqToSeq 손실함수가 불규칙함으로 학습률을 점차 줄여가며 과적합되지 않고 일반화 될 수 있도록 함 (*0.9)\n",
+        "\n",
+        "Overshooting 방지 / Local Minimum 방지\n",
+        "\n",
+        "Scheduling/Learning Rate Decay"
+      ],
+      "metadata": {
+        "id": "vC1R5eDeu4Kw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def generate_sequences(epochs):\n",
+        "  for i in range(epochs):\n",
+        "    for s in train_smiles:\n",
+        "      yield (s, s)\n",
+        "\n",
+        "model.fit_sequences(generate_sequences(40))"
+      ],
+      "metadata": {
+        "id": "isidT0Jnvyo1"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "predicted = model.predict_from_sequences(valid_smiles[:500])\n",
+        "count = 0\n",
+        "for s,p in zip(valid_smiles[:500], predicted):\n",
+        "  if ''.join(p) == s:\n",
+        "    count += 1\n",
+        "print('reproduced', count, 'of 500 validation SMILES strings')"
+      ],
+      "metadata": {
+        "id": "SBUfAQgOv14A"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "train_embeddings = model.predict_embeddings(train_smiles)\n",
+        "train_embeddings_dataset = dc.data.NumpyDataset(train_embeddings,\n",
+        "                                                train_dataset.y,\n",
+        "                                                train_dataset.w.astype(np.float32),\n",
+        "                                                train_dataset.ids)\n",
+        "\n",
+        "valid_embeddings = model.predict_embeddings(valid_smiles)\n",
+        "valid_embeddings_dataset = dc.data.NumpyDataset(valid_embeddings,\n",
+        "                                                valid_dataset.y,\n",
+        "                                                valid_dataset.w.astype(np.float32),\n",
+        "                                                valid_dataset.ids)"
+      ],
+      "metadata": {
+        "id": "vl74Akrgv_nb"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "classifier = dc.models.MultitaskClassifier(n_tasks=len(tasks),\n",
+        "                                                      n_features=256,\n",
+        "                                                      layer_sizes=[512])\n",
+        "classifier.fit(train_embeddings_dataset, nb_epoch=10)"
+      ],
+      "metadata": {
+        "id": "Ggbwmjnkv_6S"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "metric = dc.metrics.Metric(dc.metrics.roc_auc_score, np.mean, mode=\"classification\")\n",
+        "train_score = classifier.evaluate(train_embeddings_dataset, [metric], transformers)\n",
+        "valid_score = classifier.evaluate(valid_embeddings_dataset, [metric], transformers)\n",
+        "print('Training set ROC AUC:', train_score)\n",
+        "print('Validation set ROC AUC:', valid_score)"
+      ],
+      "metadata": {
+        "id": "xHS8QhtKwA-z"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "SeqToSeq 는 인코더와 디코더로 나뉨\n",
+        "\n",
+        "Self-Reconstruction으로 smiles->벡터->smiles를 했을 때 얼마나 똑같이 복원하는지 확인\n",
+        "\n",
+        "인코딩만하고 Embedding으로 목표로하는 물성 학습"
+      ],
+      "metadata": {
+        "id": "wNg_OlMwwKwM"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# 💡 2.3 SeqToSeq Embedding Insight\n",
+        "\n",
+        "AI가 Self-Reconstruction으로 분자의 핵심특성 스스로 정의 및 수치화 가능\n",
+        "\n",
+        "256차원의 벡터로 응축함으로써, 정보 손실 최소화/ 데이터 표준화\n",
+        "\n",
+        "이 Latent Space는 미세한 화학적 패턴 포착 가능"
+      ],
+      "metadata": {
+        "id": "foWehB0ow0iW"
+      }
+    }
+  ]
+}
