@@ -15,9 +15,9 @@
 - [x] 1.6 Introduction to Graph Convolutions
 - [x] 1.7 Going Deeper on Molecular Featurizations
 - [x] 1.8 Working With Splitters
-- [ ] 1.9 Advanced Model Training
-- [ ] 1.10 Creating a high fidelity model from experimental data
-- [ ] 1.11 Putting Multitask Learning to Work
+- [x] 1.9 Advanced Model Training
+- [x] 1.10 Creating a high fidelity model from experimental data
+- [x] 1.11 Putting Multitask Learning to Work
 - [ ] 1.12 Modeling Protein Ligand Interactions                          - 생물/제약 필요시
 - [ ] 1.13 Modeling Protein Ligand Interactions With Atomic Convolutions - 생물/제약 필요시
 - [ ] 1.14 Conditional Generative Adversarial Networks                   - diffusion 먼저
@@ -29,19 +29,19 @@
 
 ## 2. Molecular Machine Learning
 - [ ] 2.1 Molecular Fingerprints
-- [ ] 2.2 Going Deeper on Molecular Featurizations
+- [ ] 2.2 Going Deeper on Molecular Featurizations                  -중요
 - [ ] 2.3 Learning Unsupervised Embeddings for Molecules
 - [ ] 2.4 Synthetic Feasibility Scoring
 - [ ] 2.5 Atomic Contributions for Molecules
-- [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets
-- [ ] 2.7 Transfer Learning With ChemBERTa Transformers
-- [ ] 2.8 Training a Normalizing Flow on QM9
-- [ ] 2.9 Large Scale Chemical Screens
-- [ ] 2.10 Introduction to Molecular Attention Transformer
+- [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets       -시각화
+- [ ] 2.7 Transfer Learning With ChemBERTa Transformers               -중요
+- [ ] 2.8 Training a Normalizing Flow on QM9                         -GAN먼저
+- [ ] 2.9 Large Scale Chemical Screens                               -공정자동화
+- [ ] 2.10 Introduction to Molecular Attention Transformer           -중요
 - [ ] 2.11 Generating molecules with MolGAN
 - [ ] 2.12 Introduction to GROVER
-- [ ] 2.13 Introduction to PROTACs
-- [ ] 2.14 Druggablity Assessment with Fpocket and Machine Learning
+- [ ] 2.13 Introduction to PROTACs                                     -암 치료제 필요시
+- [ ] 2.14 Druggablity Assessment with Fpocket and Machine Learning    -신약개발 가능성
 
 ## 3. Modeling Proteins
 - [ ] 3.1 Protein Deep Learning
