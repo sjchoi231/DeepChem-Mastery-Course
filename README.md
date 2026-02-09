@@ -28,12 +28,12 @@
 - [ ] 1.19 Compiling DeepChem Torch Models                               - 엔지니어링/최적화 필요시
 
 ## 2. Molecular Machine Learning
-- [x] 2.1 Molecular Fingerprints                              -중복
-- [x] 2.2 Going Deeper on Molecular Featurizations                  -중복
-- [x] 2.3 Learning Unsupervised Embeddings for Molecules            -중복
-- [ ] 2.4 Synthetic Feasibility Scoring
-- [ ] 2.5 Atomic Contributions for Molecules
-- [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets       -시각화
+- [x] 2.1 Molecular Fingerprints                              
+- [x] 2.2 Going Deeper on Molecular Featurizations                 
+- [x] 2.3 Learning Unsupervised Embeddings for Molecules            
+- [x] 2.4 Synthetic Feasibility Scoring
+- [x] 2.5 Atomic Contributions for Molecules
+- [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets       
 - [ ] 2.7 Transfer Learning With ChemBERTa Transformers               -중요
 - [ ] 2.8 Training a Normalizing Flow on QM9                         -GAN먼저
 - [ ] 2.9 Large Scale Chemical Screens                               -공정자동화
