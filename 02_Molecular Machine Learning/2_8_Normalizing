@@ -1,0 +1,1008 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyNjiJJ0lPc8dYYXLf7ac55x"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **2.8 Training a Normalizing Flow on QM9**"
+      ],
+      "metadata": {
+        "id": "gXNrbOgrm1pK"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [],
+      "metadata": {
+        "id": "IrAm9agYnBIZ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "WYx5G25BmGrZ",
+        "outputId": "974daf99-fe19-4958-d80a-cd0b2dfe30c0"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: deepchem in /usr/local/lib/python3.12/dist-packages (2.8.1.dev20260210002223)\n",
+            "Requirement already satisfied: joblib in /usr/local/lib/python3.12/dist-packages (from deepchem) (1.5.3)\n",
+            "Requirement already satisfied: numpy<2 in /usr/local/lib/python3.12/dist-packages (from deepchem) (1.26.4)\n",
+            "Requirement already satisfied: pandas in /usr/local/lib/python3.12/dist-packages (from deepchem) (2.2.2)\n",
+            "Requirement already satisfied: scikit-learn in /usr/local/lib/python3.12/dist-packages (from deepchem) (1.6.1)\n",
+            "Requirement already satisfied: sympy in /usr/local/lib/python3.12/dist-packages (from deepchem) (1.14.0)\n",
+            "Requirement already satisfied: scipy>=1.10.1 in /usr/local/lib/python3.12/dist-packages (from deepchem) (1.16.3)\n",
+            "Requirement already satisfied: rdkit in /usr/local/lib/python3.12/dist-packages (from deepchem) (2025.9.4)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.12/dist-packages (from pandas->deepchem) (2.9.0.post0)\n",
+            "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.12/dist-packages (from pandas->deepchem) (2025.2)\n",
+            "Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.12/dist-packages (from pandas->deepchem) (2025.3)\n",
+            "Requirement already satisfied: Pillow in /usr/local/lib/python3.12/dist-packages (from rdkit->deepchem) (11.3.0)\n",
+            "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.12/dist-packages (from scikit-learn->deepchem) (3.6.0)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy->deepchem) (1.3.0)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil>=2.8.2->pandas->deepchem) (1.17.0)\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install --pre deepchem"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import deepchem\n",
+        "import warnings\n",
+        "warnings.filterwarnings('ignore')\n",
+        "deepchem.__version__"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 459
+        },
+        "id": "CctziG6Mm5-4",
+        "outputId": "5dfcebcb-a6af-4fc9-e037-136d8b3c55fc"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for SPS. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for AvgIpc. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumAmideBonds. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumAtomStereoCenters. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumBridgeheadAtoms. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumHeterocycles. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumSpiroAtoms. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for NumUnspecifiedAtomStereoCenters. Feature removed!\n",
+            "WARNING:deepchem.feat.molecule_featurizers.rdkit_descriptors:No normalization for Phi. Feature removed!\n",
+            "/usr/local/lib/python3.12/dist-packages/notebook/notebookapp.py:191: SyntaxWarning: invalid escape sequence '\\/'\n",
+            "  | |_| | '_ \\/ _` / _` |  _/ -_)\n",
+            "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m W&B installed but not logged in.  Run `wandb login` or set the WANDB_API_KEY env variable.\n",
+            "WARNING:tensorflow:From /usr/local/lib/python3.12/dist-packages/tensorflow/python/util/deprecation.py:588: calling function (from tensorflow.python.eager.polymorphic_function.polymorphic_function) with experimental_relax_shapes is deprecated and will be removed in a future version.\n",
+            "Instructions for updating:\n",
+            "experimental_relax_shapes is deprecated, use reduce_retracing instead\n",
+            "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m W&B installed but not logged in.  Run `wandb login` or set the WANDB_API_KEY env variable.\n",
+            "WARNING:deepchem.models.torch_models:Skipped loading modules with pytorch-geometric dependency, missing a dependency. No module named 'torch_geometric'\n",
+            "WARNING:deepchem.models.torch_models:Skipped loading modules with transformers dependency. No module named 'transformers.models.roberta.tokenization_roberta_fast'\n",
+            "WARNING:deepchem.models:cannot import name 'Chemberta' from 'deepchem.models.torch_models' (/usr/local/lib/python3.12/dist-packages/deepchem/models/torch_models/__init__.py)\n",
+            "WARNING:deepchem.models:Skipped loading modules with pytorch-geometric dependency, missing a dependency. cannot import name 'DMPNN' from 'deepchem.models.torch_models' (/usr/local/lib/python3.12/dist-packages/deepchem/models/torch_models/__init__.py)\n",
+            "WARNING:deepchem.models:Skipped loading modules with pytorch-lightning dependency, missing a dependency. No module named 'lightning'\n",
+            "WARNING:deepchem.models:Skipped loading some Jax models, missing a dependency. No module named 'haiku'\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'2.8.1.dev'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 2
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Normalizing Flow : 복잡한 데이터 분포(타겟분자)와 단순한 분포(가우시안 정규분포)를 연결하는 역함수가 존재하는 변환을 학습하는 모델.\n",
+        "\n",
+        "단순한 노이즈에서 분자생성/ 복잡한 분자를 넣었을 때 분자가 생성될 확률 계산\n",
+        "\n",
+        "GAN은 확률계산불가/VAE는 근사값 계산\n",
+        "\n",
+        "NF는 가역적이라 No Latent Space\n",
+        "\n",
+        "Smiles의 한계: 가짜분자 생성확률 높음\n",
+        "\n",
+        "SELFIES는 무조건 화학적으로 타당한 분자그래"
+      ],
+      "metadata": {
+        "id": "ErojlFF0nCwC"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install selfies"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yrG17kB_nCUW",
+        "outputId": "6c61e096-52e3-4830-984a-6f3059eed30e"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting selfies\n",
+            "  Downloading selfies-2.2.0-py3-none-any.whl.metadata (14 kB)\n",
+            "Downloading selfies-2.2.0-py3-none-any.whl (36 kB)\n",
+            "Installing collected packages: selfies\n",
+            "Successfully installed selfies-2.2.0\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "import pandas as pd\n",
+        "import os\n",
+        "\n",
+        "import deepchem as dc\n",
+        "from deepchem.models.normalizing_flows import NormalizingFlow, NormalizingFlowModel\n",
+        "from deepchem.models.optimizers import Adam\n",
+        "from deepchem.data import NumpyDataset\n",
+        "from deepchem.splits import RandomSplitter\n",
+        "from deepchem.molnet import load_tox21\n",
+        "\n",
+        "import rdkit\n",
+        "from rdkit import Chem\n",
+        "from rdkit.Chem.Draw import IPythonConsole\n",
+        "from rdkit.Chem import Draw\n",
+        "\n",
+        "from IPython.display import Image, display\n",
+        "\n",
+        "import selfies as sf\n",
+        "\n",
+        "import tensorflow as tf\n",
+        "import tensorflow_probability as tfp\n",
+        "\n",
+        "tfd = tfp.distributions\n",
+        "tfb = tfp.bijectors\n",
+        "tfk = tf.keras\n",
+        "\n",
+        "tfk.backend.set_floatx('float64')"
+      ],
+      "metadata": {
+        "id": "B15uFKyXnpJU"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Download from MolNet\n",
+        "tasks, datasets, transformers = dc.molnet.load_qm9(featurizer='ECFP')\n",
+        "df = pd.DataFrame(data={'smiles': datasets[0].ids})"
+      ],
+      "metadata": {
+        "id": "bUlqcOi9n4Ah"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data = df[['smiles']].sample(2500, random_state=42)"
+      ],
+      "metadata": {
+        "id": "YqROZlp3n4jB"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sf.set_semantic_constraints()  # reset constraints\n",
+        "constraints = sf.get_semantic_constraints()\n",
+        "constraints['?'] = 3\n",
+        "\n",
+        "sf.set_semantic_constraints(constraints)\n",
+        "constraints"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "g7EvUwHLn-qC",
+        "outputId": "a7db25ae-1a5a-477d-9e49-8187a11d8f90"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'H': 1,\n",
+              " 'F': 1,\n",
+              " 'Cl': 1,\n",
+              " 'Br': 1,\n",
+              " 'I': 1,\n",
+              " 'B': 3,\n",
+              " 'B+1': 2,\n",
+              " 'B-1': 4,\n",
+              " 'O': 2,\n",
+              " 'O+1': 3,\n",
+              " 'O-1': 1,\n",
+              " 'N': 3,\n",
+              " 'N+1': 4,\n",
+              " 'N-1': 2,\n",
+              " 'C': 4,\n",
+              " 'C+1': 3,\n",
+              " 'C-1': 3,\n",
+              " 'P': 5,\n",
+              " 'P+1': 4,\n",
+              " 'P-1': 6,\n",
+              " 'S': 6,\n",
+              " 'S+1': 5,\n",
+              " 'S-1': 5,\n",
+              " '?': 3}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "정의되지 않은 원자는 BOND를 8까지 가질수 있지만 3개로 제한 - 탄소가 5개의 bond를 가지는 경우같은걸 제한해 Valid한 분자생성률 높임"
+      ],
+      "metadata": {
+        "id": "TQ4XSI9AoSWp"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def preprocess_smiles(smiles):\n",
+        "  return sf.encoder(smiles)\n",
+        "\n",
+        "def keys_int(symbol_to_int):\n",
+        "  d={}\n",
+        "  i=0\n",
+        "  for key in symbol_to_int.keys():\n",
+        "    d[i]=key\n",
+        "    i+=1\n",
+        "  return d\n",
+        "\n",
+        "data['selfies'] = data['smiles'].apply(preprocess_smiles)"
+      ],
+      "metadata": {
+        "id": "h6A_kV-kn_H-"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data['len'] = data['smiles'].apply(lambda x: len(x))\n",
+        "data.sort_values(by='len').head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "xYwxnn2ToLXv",
+        "outputId": "2c4b565d-d21d-43da-9fa6-50abbed1e5e9"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "                     smiles  \\\n",
+              "5112          [H]c1nonc1[H]   \n",
+              "66731    [H]n1nnc(C#CC#N)n1   \n",
+              "32706    [H]c1nc(C#N)noc1=O   \n",
+              "35556   [H]c1nnnc([H])c1[H]   \n",
+              "91157  [H]c1nc(C#N)nc(=O)o1   \n",
+              "\n",
+              "                                                 selfies  len  \n",
+              "5112             [H][C][=N][O][N][=C][Ring1][Branch1][H]   13  \n",
+              "66731  [H][N][N][=N][C][Branch1][Branch1][C][#C][C][#...   18  \n",
+              "32706  [H][C][=N][C][Branch1][Ring1][C][#N][=N][O][C]...   18  \n",
+              "35556  [H][C][=N][N][=N][C][Branch1][C][H][=C][Ring1]...   19  \n",
+              "91157  [H][C][=N][C][Branch1][Ring1][C][#N][=N][C][=B...   20  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-6e83a861-806b-4f55-b9bd-32d0093fb9e1\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>smiles</th>\n",
+              "      <th>selfies</th>\n",
+              "      <th>len</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>5112</th>\n",
+              "      <td>[H]c1nonc1[H]</td>\n",
+              "      <td>[H][C][=N][O][N][=C][Ring1][Branch1][H]</td>\n",
+              "      <td>13</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>66731</th>\n",
+              "      <td>[H]n1nnc(C#CC#N)n1</td>\n",
+              "      <td>[H][N][N][=N][C][Branch1][Branch1][C][#C][C][#...</td>\n",
+              "      <td>18</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>32706</th>\n",
+              "      <td>[H]c1nc(C#N)noc1=O</td>\n",
+              "      <td>[H][C][=N][C][Branch1][Ring1][C][#N][=N][O][C]...</td>\n",
+              "      <td>18</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>35556</th>\n",
+              "      <td>[H]c1nnnc([H])c1[H]</td>\n",
+              "      <td>[H][C][=N][N][=N][C][Branch1][C][H][=C][Ring1]...</td>\n",
+              "      <td>19</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>91157</th>\n",
+              "      <td>[H]c1nc(C#N)nc(=O)o1</td>\n",
+              "      <td>[H][C][=N][C][Branch1][Ring1][C][#N][=N][C][=B...</td>\n",
+              "      <td>20</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-6e83a861-806b-4f55-b9bd-32d0093fb9e1')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-6e83a861-806b-4f55-b9bd-32d0093fb9e1 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-6e83a861-806b-4f55-b9bd-32d0093fb9e1');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "summary": "{\n  \"name\": \"data\",\n  \"rows\": 5,\n  \"fields\": [\n    {\n      \"column\": \"smiles\",\n      \"properties\": {\n        \"dtype\": \"string\",\n        \"num_unique_values\": 5,\n        \"samples\": [\n          \"[H]n1nnc(C#CC#N)n1\",\n          \"[H]c1nc(C#N)nc(=O)o1\",\n          \"[H]c1nc(C#N)noc1=O\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"selfies\",\n      \"properties\": {\n        \"dtype\": \"string\",\n        \"num_unique_values\": 5,\n        \"samples\": [\n          \"[H][N][N][=N][C][Branch1][Branch1][C][#C][C][#N][=N][Ring1][=Branch2]\",\n          \"[H][C][=N][C][Branch1][Ring1][C][#N][=N][C][=Branch1][C][=O][O][Ring1][=Branch2]\",\n          \"[H][C][=N][C][Branch1][Ring1][C][#N][=N][O][C][Ring1][Branch2][=O]\"\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"len\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 2,\n        \"min\": 13,\n        \"max\": 20,\n        \"num_unique_values\": 4,\n        \"samples\": [\n          18,\n          20,\n          13\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "selfies_list = np.asanyarray(data.selfies)\n",
+        "selfies_alphabet = sf.get_alphabet_from_selfies(selfies_list)\n",
+        "selfies_alphabet.add('[nop]')  # Add the \"no operation\" symbol as a padding character\n",
+        "selfies_alphabet.add('.')\n",
+        "selfies_alphabet = list(sorted(selfies_alphabet))\n",
+        "largest_selfie_len = max(sf.len_selfies(s) for s in selfies_list)\n",
+        "symbol_to_int = dict((c, i) for i, c in enumerate(selfies_alphabet))\n",
+        "int_mol=keys_int(symbol_to_int)"
+      ],
+      "metadata": {
+        "id": "n_c-1fXjoM1U"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "onehots=sf.batch_selfies_to_flat_hot(selfies_list, symbol_to_int,largest_selfie_len)"
+      ],
+      "metadata": {
+        "id": "ijRsnzaGoRZ8"
+      },
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "분자토큰은 불연속적인 값\n",
+        "\n",
+        "Dequantization을 이용해 SELFIES를 숫자로 바꾼 뒤, 벡터로 만듬\n",
+        "-> 0~1사이의 랜덤노이즈 더함 -> 연속적인 데이터 분포로 바꿈"
+      ],
+      "metadata": {
+        "id": "2G5vjrFzobKT"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "input_tensor = tf.convert_to_tensor(onehots, dtype='float64')\n",
+        "noise_tensor = tf.random.uniform(shape=input_tensor.shape, minval=0, maxval=1, dtype='float64')\n",
+        "dequantized_data = tf.add(input_tensor, noise_tensor)"
+      ],
+      "metadata": {
+        "id": "R9y9Oh3wooSF"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "ds = NumpyDataset(dequantized_data)  # Create a DeepChem dataset\n",
+        "splitter = RandomSplitter()\n",
+        "train, val, test = splitter.train_valid_test_split(dataset=ds, seed=42)\n",
+        "train_idx, val_idx, test_idx = splitter.split(dataset=ds, seed=42)\n",
+        "\n",
+        "dim = len(train.X[0])  # length of one-hot encoded vectors\n",
+        "train.X.shape  # 2000 samples, N-dimensional one-hot vectors that represent molecules"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "jv3QPGWWopsX",
+        "outputId": "14863a53-59fd-42d8-bf87-3c0af7bf6d7f"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(2000, 2852)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# SMILES strings of training data\n",
+        "train_smiles = data['smiles'].iloc[train_idx].values"
+      ],
+      "metadata": {
+        "id": "0s8Aa5ocorGs"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "base_dist = tfd.MultivariateNormalDiag(loc=np.zeros(dim), scale_diag=np.ones(dim))\n",
+        "\n",
+        "if dim % 2 == 0:\n",
+        "    permutation = tf.cast(np.concatenate((np.arange(dim / 2, dim), np.arange(0, dim / 2))),\n",
+        "                                  tf.int32)\n",
+        "else:\n",
+        "    permutation = tf.cast(np.concatenate((np.arange(dim / 2 + 1, dim), np.arange(0, dim / 2))), tf.int32)"
+      ],
+      "metadata": {
+        "id": "xZlCrAloosdz"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "num_layers = 8\n",
+        "flow_layers = []\n",
+        "\n",
+        "Made = tfb.AutoregressiveNetwork(params=2,\n",
+        "                                 hidden_units=[512, 512], activation='relu')\n",
+        "\n",
+        "for i in range(num_layers):\n",
+        "    flow_layers.append(\n",
+        "        (tfb.MaskedAutoregressiveFlow(shift_and_log_scale_fn=Made)\n",
+        "    ))\n",
+        "\n",
+        "    permutation = tf.cast(np.random.permutation(np.arange(0, dim)), tf.int32)\n",
+        "\n",
+        "    flow_layers.append(tfb.Permute(permutation=permutation))\n",
+        "\n",
+        "#     if (i + 1) % int(2) == 0:\n",
+        "#         flow_layers.append(tfb.BatchNormalization())"
+      ],
+      "metadata": {
+        "id": "EasEmMfxpCpF"
+      },
+      "execution_count": 16,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "MAF (Masked Autoregressive Flow) : 정규분포에서 시작해 노이즈->의미있는 분포\n",
+        "\n",
+        "MAF & MADE: Autoregressive를 이용 (가역적)\n",
+        "\n",
+        "Permutation: 특정 차원의 상관관계에 편향이 생기지 않도록 순서 섞어줌"
+      ],
+      "metadata": {
+        "id": "LKnp3LPapHKZ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%time\n",
+        "nf = NormalizingFlow(base_distribution=base_dist,\n",
+        "                    flow_layers=flow_layers)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "eK2lDpujpbFU",
+        "outputId": "b8d29c9a-7c55-4ee5-b2c4-e99d7f62155f"
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "CPU times: user 17 ms, sys: 17 µs, total: 17 ms\n",
+            "Wall time: 17.9 ms\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "nfm = NormalizingFlowModel(nf, learning_rate=1e-4, batch_size=128)\n",
+        "nfm._input_dtypes = [tf.float64] # Manually set input dtype\n",
+        "nfm._label_dtypes = [] # No explicit labels in this setup\n",
+        "nfm._output_dtypes = [tf.float64] # Expected output (log_prob) is float64\n",
+        "nfm._weight_dtypes = [] # No sample weights"
+      ],
+      "metadata": {
+        "id": "QnnVErqZph5S"
+      },
+      "execution_count": 25,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "losses = []\n",
+        "val_losses = []"
+      ],
+      "metadata": {
+        "id": "ouJ-q-NNpjVQ"
+      },
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%time\n",
+        "import os\n",
+        "os.environ['TF_USE_LEGACY_KERAS'] = 'True'\n",
+        "\n",
+        "max_epochs = 10 # maximum number of epochs of the training\n",
+        "\n",
+        "nfm._built = True # Bypass KerasModel's build process\n",
+        "nfm._inputs_built = True\n",
+        "nfm._training_ops_built = True\n",
+        "\n",
+        "for epoch in range(max_epochs):\n",
+        "  loss = nfm.fit(train, nb_epoch=1, all_losses=losses, checkpoint_interval=0)\n",
+        "  val_loss = nfm.create_nll(val.X)\n",
+        "  val_losses.append(val_loss.numpy())"
+      ],
+      "metadata": {
+        "id": "RoaDSP03plY6"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "f7eda8f2"
+      },
+      "source": [
+        "%%time\n",
+        "import os\n",
+        "os.environ['TF_USE_LEGACY_KERAS'] = 'True'\n",
+        "\n",
+        "max_epochs = 10 # maximum number of epochs of the training\n",
+        "\n",
+        "nfm._built = True # Bypass KerasModel's build process\n",
+        "nfm._inputs_built = True\n",
+        "nfm._training_ops_built = True\n",
+        "\n",
+        "for epoch in range(max_epochs):\n",
+        "  loss = nfm.fit(train, nb_epoch=1, all_losses=losses, checkpoint_interval=0)\n",
+        "  val_loss = nfm.create_nll(val.X)\n",
+        "  val_losses.append(val_loss.numpy())"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "f, ax = plt.subplots()\n",
+        "ax.scatter(range(len(losses)), losses, label='train loss')\n",
+        "ax.scatter(range(len(val_losses)), val_losses, label='val loss')\n",
+        "plt.legend(loc='upper right');"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 430
+        },
+        "id": "NzY_Vy-BpxMm",
+        "outputId": "21bc2396-61fb-47ba-f6df-56a62b327334"
+      },
+      "execution_count": 30,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 640x480 with 1 Axes>"
+            ],
+            "image/png": "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\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "generated_samples = nfm.flow.sample(10)  # generative modeling\n",
+        "log_probs = nfm.flow.log_prob(generated_samples)  # probability density estimation"
+      ],
+      "metadata": {
+        "id": "HJeqSRaZpx3Q"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "mols = tf.math.floor(generated_samples)  # quantize data\n",
+        "mols = tf.clip_by_value(mols, 0, 1)  # Set negative values to 0 and values > 1 to 1\n",
+        "mols_list = mols.numpy().tolist()\n",
+        "\n",
+        "# Add padding characters if needed\n",
+        "for mol in mols_list:\n",
+        "  for i in range(largest_selfie_len):\n",
+        "    row = mol[len(selfies_alphabet) * i: len(selfies_alphabet) * (i + 1)]\n",
+        "    if all(elem == 0 for elem in row):\n",
+        "      mol[len(selfies_alphabet) * (i+1) - 1] = 1"
+      ],
+      "metadata": {
+        "id": "92N4fP-bpzY7"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "mols=sf.batch_flat_hot_to_selfies(mols_list, int_mol)"
+      ],
+      "metadata": {
+        "id": "2QQbsjI8p1RY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from rdkit import RDLogger\n",
+        "from rdkit import Chem\n",
+        "RDLogger.DisableLog('rdApp.*')  # suppress error messages\n",
+        "\n",
+        "valid_count = 0\n",
+        "valid_selfies, invalid_selfies = [], []\n",
+        "for idx, selfies in enumerate(mols):\n",
+        "  try:\n",
+        "    if Chem.MolFromSmiles(sf.decoder(mols[idx]), sanitize=True) is not None:\n",
+        "        valid_count += 1\n",
+        "        valid_selfies.append(selfies)\n",
+        "    else:\n",
+        "      invalid_selfies.append(selfies)\n",
+        "  except Exception:\n",
+        "    pass\n",
+        "print('%.2f' % (valid_count / len(mols)),  '% of generated samples are valid molecules.')"
+      ],
+      "metadata": {
+        "id": "Muqbw-7tp2TR"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "gen_mols = [Chem.MolFromSmiles(sf.decoder(vs)) for vs in valid_selfies]"
+      ],
+      "metadata": {
+        "id": "QDZV2hTKp5Wn"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def display_images(filenames):\n",
+        "    \"\"\"Helper to pretty-print images.\"\"\"\n",
+        "    for file in filenames:\n",
+        "      display(Image(file))\n",
+        "\n",
+        "def mols_to_pngs(mols, basename=\"generated_mol\"):\n",
+        "    \"\"\"Helper to write RDKit mols to png files.\"\"\"\n",
+        "    filenames = []\n",
+        "    for i, mol in enumerate(mols):\n",
+        "        filename = \"%s%d.png\" % (basename, i)\n",
+        "        Draw.MolToFile(mol, filename)\n",
+        "        filenames.append(filename)\n",
+        "    return filenames"
+      ],
+      "metadata": {
+        "id": "8JEeok71p6sa"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "display_mols = []\n",
+        "for i in range(10):\n",
+        "  display_mols.append(gen_mols[i])\n",
+        "\n",
+        "display_images(mols_to_pngs(display_mols))"
+      ],
+      "metadata": {
+        "id": "WJxz6Quvp71Y"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from rdkit.Chem.Fingerprints.FingerprintMols import FingerprintMol\n",
+        "from rdkit.DataStructs import FingerprintSimilarity\n",
+        "from IPython.display import display\n",
+        "\n",
+        "def tanimoto_similarity(database_mols, query_mol):\n",
+        "    \"\"\"Compare generated molecules to database by Tanimoto similarity.\"\"\"\n",
+        "    # convert Mol to datastructure type\n",
+        "    fps = [FingerprintMol(m) for m in database_mols]\n",
+        "\n",
+        "    # set a query molecule to compare against database\n",
+        "    query = FingerprintMol(query_mol)\n",
+        "\n",
+        "    similarities = []\n",
+        "\n",
+        "    # loop through to find Tanimoto similarity\n",
+        "    for idx, f in enumerate(fps):\n",
+        "        # tuple: (idx, similarity)\n",
+        "        similarities.append((idx, FingerprintSimilarity(query, f)))\n",
+        "\n",
+        "    # sort sim using the similarities\n",
+        "    similarities.sort(key=lambda x:x[1], reverse=True)\n",
+        "\n",
+        "    return similarities"
+      ],
+      "metadata": {
+        "id": "Bd4nSjJvp86y"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_mols = [Chem.MolFromSmiles(smiles) for smiles in train_smiles]"
+      ],
+      "metadata": {
+        "id": "MmvXOe6pp-1u"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# change the second argument to compare different generated molecules to QM9\n",
+        "tanimoto_scores = tanimoto_similarity(train_mols, gen_mols[3])\n",
+        "similar_mols = []"
+      ],
+      "metadata": {
+        "id": "UEGduHqRqDKZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "for idx, ts in tanimoto_scores[:3]:\n",
+        "    print(round(ts, 3))\n",
+        "    similar_mols.append(train_mols[idx])\n",
+        "\n",
+        "display_images(mols_to_pngs(similar_mols, 'qm9_mol'))"
+      ],
+      "metadata": {
+        "id": "ZRtNOJNAqETx"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# 💡 2.8 Normalizing Flow Insight\n",
+        "\n",
+        "GAN이나 VAE처럼 근삿값을 찾는 게 아니라, 복잡한 분자 분포와 단순한 노이즈 사이의 가역적(Invertible) 변환을 수학적으로 정확히 학습하여 생성과 확률 계산을 동시수행\n",
+        "\n",
+        "SELFIES: 문법적 오류가 잦은 SMILES 대신 100% 견고한 SELFIES를 채택함으로써, 모델이 화학적 상식을 배우기 전이라도 생성된 분자의 유효성(Validity) 올림\n",
+        "\n",
+        "로그 가능도(Log-likelihood)를 계산할 수 있어, 새로 설계한 신소재가 기존 데이터 분포에서 얼마나 안정적이고 타당한 구조인지 정량적으로 평가하는 척도"
+      ],
+      "metadata": {
+        "id": "0loiZ2bVt5VR"
+      }
+    }
+  ]
+}
