@@ -35,7 +35,7 @@
 - [x] 2.5 Atomic Contributions for Molecules
 - [ ] 2.6 Interactive Model Evaluation with Trident Chemwidgets       -시각화
 - [x] 2.7 Transfer Learning With ChemBERTa Transformers               -중요
-- [ ] 2.8 Training a Normalizing Flow on QM9                         -GAN먼저
+- [x] 2.8 Training a Normalizing Flow on QM9                         -GAN먼저
 - [ ] 2.9 Large Scale Chemical Screens                               -공정자동화
 - [ ] 2.10 Introduction to Molecular Attention Transformer           -중요
 - [ ] 2.11 Generating molecules with MolGAN
