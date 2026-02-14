@@ -65,6 +65,7 @@
 - [ ] 5.3 Training an Exchange Correlation Functional using Deepchem
 
 ## 6. Bioinformatics
+바이오/제약 공정
 - [ ] 6.1 Introduction to Bioinformatics
 - [ ] 6.2 Multisequence Alignments
 - [ ] 6.3 Scanpy
