@@ -91,6 +91,7 @@
 - [ ] 10.1 Introduction to Equivariance
 
 ## 11. Olfaction
+후각/특수화학
 - [ ] 11.1 Predict Multi Label Odor Descriptors using OpenPOM
 
 ## 12. Polymer Science
