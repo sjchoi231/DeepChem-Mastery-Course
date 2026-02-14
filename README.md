@@ -38,8 +38,8 @@
 - [x] 2.8 Training a Normalizing Flow on QM9                         -GAN먼저
 - [x] 2.9 Large Scale Chemical Screens                               -공정자동화
 - [x] 2.10 Introduction to Molecular Attention Transformer           -중요
-- [ ] 2.11 Generating molecules with MolGAN
-- [ ] 2.12 Introduction to GROVER
+- [x] 2.11 Generating molecules with MolGAN
+- [x] 2.12 Introduction to GROVER
 - [ ] 2.13 Introduction to PROTACs                                     -암 치료제 필요시
 - [ ] 2.14 Druggablity Assessment with Fpocket and Machine Learning    -신약개발 가능성
 
