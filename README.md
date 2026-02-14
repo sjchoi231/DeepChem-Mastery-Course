@@ -44,6 +44,7 @@
 - [ ] 2.14 Druggablity Assessment with Fpocket and Machine Learning    -신약개발 가능성
 
 ## 3. Modeling Proteins
+바이오의약품/효소촉매
 - [ ] 3.1 Protein Deep Learning
 - [ ] 3.2 DeepChem AntibodyTutorial Simplified
 - [ ] 3.3 Protein Structure Prediction with ESMFold
@@ -51,6 +52,7 @@
 - [ ] 3.5 ProteinLM Tutorial0
 
 ## 4. Protein Ligand Modeling
+신약개발
 - [ ] 4.1 Introduction to Binding Sites
 - [ ] 4.2 Modeling Protein Ligand Interactions
 - [ ] 4.3 Modeling Protein Ligand Interactions With Atomic Convolutions
