@@ -60,7 +60,7 @@
 - [ ] 4.5 UniProt Data Preprocessing for Binding Sites
 
 ## 5. Quantum Chemistry
-- [ ] 5.1 Exploring Quantum Chemistry with GDB1k
+- [x] 5.1 Exploring Quantum Chemistry with GDB1k
 - [ ] 5.2 DeepQMC tutorial
 - [ ] 5.3 Training an Exchange Correlation Functional using Deepchem
 
@@ -73,7 +73,7 @@
 - [ ] 6.5 Cell Counting Tutorial
 
 ## 7. Material Science
-- [ ] 7.1 Introduction To Material Science
+- [x] 7.1 Introduction To Material Science
 
 ## 8. Machine Learning Methods
 - [ ] 8.1 Using Reinforcement Learning to Play Pong
@@ -95,6 +95,7 @@
 - [ ] 11.1 Predict Multi Label Odor Descriptors using OpenPOM
 
 ## 12. Polymer Science
+고분자 표현법
 - [ ] 12.1 An Introduction to the Polymers and Their Representation
 - [ ] 12.2 Crystallization tendency regression
 - [ ] 12.3 Introduction to Polymer SMILES
