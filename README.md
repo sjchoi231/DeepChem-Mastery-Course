@@ -61,8 +61,8 @@
 
 ## 5. Quantum Chemistry
 - [x] 5.1 Exploring Quantum Chemistry with GDB1k
-- [ ] 5.2 DeepQMC tutorial
-- [ ] 5.3 Training an Exchange Correlation Functional using Deepchem
+- [x] 5.2 DeepQMC tutorial
+- [x] 5.3 Training an Exchange Correlation Functional using Deepchem
 
 ## 6. Bioinformatics
 바이오/제약 공정
@@ -76,8 +76,9 @@
 - [x] 7.1 Introduction To Material Science
 
 ## 8. Machine Learning Methods
+모델 해석/신뢰
 - [ ] 8.1 Using Reinforcement Learning to Play Pong
-- [ ] 8.2 Introduction to Model Interpretability
+- [ ] 8.2 Introduction to Model Interpretability - 후에
 - [ ] 8.3 Uncertainty In Deep Learning
 
 ## 9. Deep Differential Equations
