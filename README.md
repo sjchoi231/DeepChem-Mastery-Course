@@ -82,14 +82,14 @@
 - [ ] 8.3 Uncertainty In Deep Learning
 
 ## 9. Deep Differential Equations
-- [ ] 9.1 Physics Informed Neural Networks
-- [ ] 9.2 Introducing JaxModel and PINNModel
-- [ ] 9.3 About nODE Using Torchdiffeq in Deepchem
-- [ ] 9.4 Differentiation Infrastructure in Deepchem
-- [ ] 9.5 Ordinary Differential Equation Solving using deepchem
+- [x] 9.1 Physics Informed Neural Networks
+- [x] 9.2 Introducing JaxModel and PINNModel
+- [x] 9.3 About nODE Using Torchdiffeq in Deepchem
+- [x] 9.4 Differentiation Infrastructure in Deepchem
+- [x] 9.5 Ordinary Differential Equation Solving using deepchem
 
 ## 10. Equivariance
-- [ ] 10.1 Introduction to Equivariance
+- [x] 10.1 Introduction to Equivariance
 
 ## 11. Olfaction
 후각/특수화학
